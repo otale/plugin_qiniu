@@ -1,0 +1,120 @@
+#include('/admin/header.html',{active:'qiniu', title:'七牛设置'})
+<link href="/static/admin/plugins/toggles/toggles.css" rel="stylesheet">
+<div class="row">
+
+    <div class="col-sm-12">
+        <h4 class="page-title">七牛设置</h4>
+    </div>
+
+    <div class="col-md-8">
+        <div class="panel panel-color panel-primary">
+            <div class="panel-body">
+                <form class="form-horizontal" role="form" id="global-form">
+                    <div class="form-group">
+                        <label class="col-md-4 control-label">空间名（BucketName）</label>
+                        <div class="col-md-8">
+                            <input type="text" class="form-control" name="plugin_qiniu_bucketname"
+                                   placeholder="请输入您的七牛空间名"
+                                   value="${options.plugin_qiniu_bucketname ?! ''}" required aria-required="true"/>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-md-4 control-label">操作账号（accessKey）</label>
+                        <div class="col-md-8">
+                            <input type="text" class="form-control" name="plugin_qiniu_operatorname"
+                                   placeholder="请输入您的七牛空间操作账号"
+                                   value="${options.plugin_qiniu_operatorname ?! ''}" required aria-required="true"/>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-md-4 control-label">操作密码（secretKey）</label>
+                        <div class="col-md-8">
+                            <input type="password" class="form-control" name="plugin_qiniu_operatorpwd"
+                                   placeholder="请输入您的七牛操作密码"
+                                   value="${options.plugin_qiniu_operatorpwd ?! ''}" required aria-required="true"/>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="col-md-4 control-label">域名（Domain）</label>
+                        <div class="col-md-8">
+                            <input type="text" class="form-control" name="attach_url" placeholder="请输入您的七牛自定义域名"
+                                   value="${options.attach_url ?! ''}" required aria-required="true"/>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="col-md-4 control-label">是否启动该插件</label>
+                        <div class="col-md-8">
+                            <div class="toggle toggle-success allow-${options.plugin_qiniu_active ?! 'false'}"
+                                 onclick="active_plugin(this);"></div>
+                        </div>
+                    </div>
+
+                    <input type="hidden" name="plugin_qiniu_active" id="plugin_qiniu_active"
+                           value="${options.plugin_qiniu_active ?! 'false'}"/>
+
+                    <div class="clearfix pull-right">
+                        <button type="button" class="btn btn-primary waves-effect waves-light" onclick="saveSetting()">
+                            保存设置
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+</div>
+#include('/admin/footer.html')
+<script src="//cdn.bootcss.com/jquery-toggles/2.0.4/toggles.min.js"></script>
+<script type="text/javascript">
+
+    var tale = new $.tale();
+    /**
+     * 保存全局设置
+     */
+    function saveSetting() {
+        var param = $('#global-form').serialize();
+        tale.post({
+            url: '/admin/plugins/qiniu/save',
+            data: param,
+            success: function (result) {
+                if (result && result.success) {
+                    tale.alertOkAndReload("保存成功");
+                } else {
+                    tale.alertError(result.msg || '设置保存失败');
+                }
+            }
+        });
+    }
+
+    function active_plugin(obj) {
+        var this_ = $(obj);
+        var on = this_.find('.toggle-on.active').length;
+        var off = this_.find('.toggle-off.active').length;
+        if (on == 1) {
+            $('#plugin_qiniu_active').val('false');
+        }
+        if (off == 1) {
+            $('#plugin_qiniu_active').val('true');
+        }
+    }
+
+    $('.allow-true').toggles({
+        on: true,
+        text: {
+            on: '开启',
+            off: '关闭'
+        }
+    });
+
+    $('.allow-false').toggles({
+        off: true,
+        text: {
+            on: '开启',
+            off: '关闭'
+        }
+    });
+</script>
+</body>
+</html>
