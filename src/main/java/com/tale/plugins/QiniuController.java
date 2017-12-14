@@ -10,6 +10,10 @@ import com.blade.mvc.annotation.Route;
 import com.blade.mvc.http.HttpMethod;
 import com.blade.mvc.http.Request;
 import com.blade.mvc.ui.RestResponse;
+import com.qiniu.common.Zone;
+import com.qiniu.storage.BucketManager;
+import com.qiniu.storage.Configuration;
+import com.qiniu.storage.UploadManager;
 import com.qiniu.util.Auth;
 import com.tale.controller.BaseController;
 import com.tale.exception.TipException;
@@ -83,11 +87,16 @@ public class QiniuController extends BaseController {
 
             TaleConst.OPTIONS.addAll(optionsService.getOptions());
 
-            QiniuWebHook.auth = Auth.create(name, pass);
-            QiniuWebHook.upToken = QiniuWebHook.auth.uploadToken(bucket);
+            if (StringKit.isNotBlank(name) && StringKit.isNotBlank(pass) && StringKit.isNotBlank(bucket)) {
+                QiniuWebHook.auth = Auth.create(name, pass);
+                QiniuWebHook.upToken = QiniuWebHook.auth.uploadToken(bucket);
+                //构造一个带指定Zone对象的配置类
+                Configuration cfg = new Configuration(Zone.autoZone());
+                QiniuWebHook.uploadManager = new UploadManager(cfg);
+                QiniuWebHook.bucketManager = new BucketManager(QiniuWebHook.auth, cfg);
+            }
 
             new Logs(QiniuConst.SAVE_LOG_ACTION, JsonKit.toString(request.parameters()), request.address(), this.getUid()).save();
-
             return RestResponse.ok();
         } catch (Exception e) {
             String msg = "保存设置失败";

@@ -90,12 +90,12 @@
 
     function active_plugin(obj) {
         var this_ = $(obj);
-        var on = this_.find('.toggle-on.active').length;
-        var off = this_.find('.toggle-off.active').length;
-        if (on == 1) {
+        var on = this_.attr('on');
+        if (on == 'true') {
+            this_.attr('on', 'false');
             $('#plugin_qiniu_active').val('false');
-        }
-        if (off == 1) {
+        } else {
+            this_.attr('on', 'true');
             $('#plugin_qiniu_active').val('true');
         }
     }

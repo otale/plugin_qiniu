@@ -9,9 +9,7 @@ import com.blade.mvc.http.Response;
 import com.blade.mvc.multipart.FileItem;
 import com.blade.mvc.ui.RestResponse;
 import com.google.gson.Gson;
-import com.qiniu.common.Zone;
 import com.qiniu.storage.BucketManager;
-import com.qiniu.storage.Configuration;
 import com.qiniu.storage.UploadManager;
 import com.qiniu.storage.model.DefaultPutRet;
 import com.qiniu.util.Auth;
@@ -63,19 +61,6 @@ public class QiniuWebHook implements WebHook {
         boolean isActive = TaleConst.OPTIONS.getBoolean(QiniuConst.PLUGIN_KEY_ACTIVE, false);
         if (!isActive) {
             return true;
-        } else {
-            if (auth == null) {
-                bucket = TaleConst.OPTIONS.getOrNull(QiniuConst.PLUGIN_KEY_BUCKET_NAME);
-                String name = TaleConst.OPTIONS.getOrNull(QiniuConst.PLUGIN_KEY_OPERATORNAME);
-                String pass = TaleConst.OPTIONS.getOrNull(QiniuConst.PLUGIN_KEY_OPERATORPWD);
-
-                auth = Auth.create(name, pass);
-                upToken = auth.uploadToken(bucket);
-                //构造一个带指定Zone对象的配置类
-                Configuration cfg = new Configuration(Zone.autoZone());
-                uploadManager = new UploadManager(cfg);
-                bucketManager = new BucketManager(auth, cfg);
-            }
         }
 
         log.info("执行七牛插件");
@@ -85,9 +70,7 @@ public class QiniuWebHook implements WebHook {
         String   uri      = request.uri();
 
         // 拦截上传接口
-        if ("/admin/attach/upload".equals(uri)) {
-            Users                 users       = TaleUtils.getLoginUser();
-            Integer               uid         = users.getUid();
+        if (QiniuConst.UPLOAD_URI.equals(uri)) {
             Map<String, FileItem> fileItemMap = request.fileItems();
             Collection<FileItem>  fileItems   = fileItemMap.values();
             try {
@@ -106,7 +89,7 @@ public class QiniuWebHook implements WebHook {
         }
 
         // 删除接口
-        if ("/admin/attach/delete".equals(uri)) {
+        if (QiniuConst.DELETE_URI.equals(uri)) {
             try {
                 Users   users  = TaleUtils.getLoginUser();
                 Integer id     = request.queryInt("id", 0);
@@ -139,7 +122,6 @@ public class QiniuWebHook implements WebHook {
     private String upload(FileItem fileItem) {
         Users   users = TaleUtils.getLoginUser();
         Integer uid   = users.getUid();
-
         String fname = fileItem.getFileName();
         if (fileItem.getLength() / 1024 <= TaleConst.MAX_FILE_SIZE) {
             String fkey  = TaleUtils.getFileKey(fname);
