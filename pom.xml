@@ -4,7 +4,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.tale.qiniu</groupId>
+    <groupId>io.github.otale</groupId>
     <artifactId>plugin_qiniu</artifactId>
     <version>1.0.0</version>
     <packaging>jar</packaging>
@@ -15,9 +15,9 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.junicorn</groupId>
+            <groupId>io.github.otale</groupId>
             <artifactId>tale</artifactId>
-            <version>1.03</version>
+            <version>least</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -26,7 +26,7 @@
             <version>7.2.4</version>
         </dependency>
     </dependencies>
-
+    
     <repositories>
         <repository>
             <id>oss-snapshots</id>
@@ -39,7 +39,7 @@
             </snapshots>
         </repository>
     </repositories>
-
+    
     <profiles>
         <profile>
             <id>plugin_qiniu</id>
@@ -88,8 +88,21 @@
                     <encoding>UTF-8</encoding>
                 </configuration>
             </plugin>
+            <plugin>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <configuration>
+                    <!--这部分可有可无,加上的话则直接生成可运行jar包-->
+                    <!--<archive>-->
+                    <!--<manifest>-->
+                    <!--<mainClass>${exec.mainClass}</mainClass>-->
+                    <!--</manifest>-->
+                    <!--</archive>-->
+                    <descriptorRefs>
+                        <descriptorRef>jar-with-dependencies</descriptorRef>
+                    </descriptorRefs>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
-
 
 </project>
